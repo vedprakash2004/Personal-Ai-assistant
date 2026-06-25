@@ -1,0 +1,208 @@
+{
+  "name": "email Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -224,
+        -32
+      ],
+      "id": "16595111-c6f0-4f24-b4a5-80c45c92da9d",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.quwry }}",
+        "options": {
+          "systemMessage": "=# System Role\n\nYou are an intelligent email assistant specifically designed to manage Gmail actions. Your primary role is to assist in composing and replying to emails, ensuring all emails are signed off professionally and consistently from \"Nate\" without using placeholders.\n\n#Task Specification\n\nYour task is to finalize and sign off all emails with \"Nate\" as the sender. Ensure the body of the email is clear, professional, and without placeholders such as [name], [company], or [placeholder text). Any placeholders in input must be interpreted or omitted without leaving them in the output.\n\nwt [Time] on [Day]?\n\n# Specifics and Context\n\nThis task ensures all outgoing communication reflects professionalism and consistency. Signing off emails correctly as \"Nate\" avoids confusion and builds trust with recipients. By removing placeholders and finalizing content, you enhance communication effectiveness.\n\n. Yes, I can confirm the meeting at se let me know if there are any changes.\n\n# Examples\n\n## Example 1\n\n**Input:**\n\ncompose an email:\n\n\"Hi [Client Name],\n\nThank you for your inquiry about [Product]. We'd be happy to discuss further. Please let us know your availability for a call next week.\n\n[Closing Placeholder]\"\n\n**Output:**\n\nThank you for your inquiry about our product. We'd be happy to discuss further. Please letus know your availability for a call next week.\n\nBest regards,\n\nhariom\n\n** Example 2\n\n**Input:**\n\nReply to an email:\n\n\"Hi hariom,\n\nCan we confirm a meeting at [Time] on [Day]?\n\nThanks, John\n\n**Output:**\n\nHi John,\n\nThank you for reaching out. Yes, I can confirm the meeting at your suggested time. Please let me know if there are any changes.\n\nBest regards, Nate\n\n* Reminders\n\nAlways remove placeholders from email drafts. Replace with suitable text or omit if no information is available.\n\nSign off every email as \"Nate\" using a professional closing (e.g., \"Best regards,\" or \"Thanks,\").\n\nEnsure all language is clear, polished, and error-free."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "29340c8a-fb71-4870-bdc7-dba431542752",
+      "name": "email Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        176
+      ],
+      "id": "daaecefb-7e73-4d05-ba8c-d1b4919d23ce",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "A6aeqpCv1ShA2gjy",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ $fromAI(\"limit\") }}",
+        "simple": false,
+        "filters": {
+          "sender": "={{ $formAI(\"senderEmail\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        112
+      ],
+      "id": "35019049-fd74-41b8-9e44-98ea27be30b0",
+      "name": "get massage",
+      "webhookId": "eb788a02-a5e9-4fdc-9f06-83b04549259e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tdVj6K8XO2pPU1n3",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"emailAddress\", \"the email Address we are sendinig to\") }}",
+        "subject": "={{ $fromAI(\"Subject\") }}",
+        "message": "={{ $fromAI(\"emailbody\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        144
+      ],
+      "id": "906d5d98-b759-4abe-a131-d7c2ca7564f2",
+      "name": "sand email",
+      "webhookId": "95e46199-fecb-4996-a821-bd56a19ceffb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tdVj6K8XO2pPU1n3",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "df41a968-17aa-4fe0-9303-68470fad2715",
+              "name": "responce",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        -32
+      ],
+      "id": "20c4d300-c633-413b-9b3f-9489df41cdb5",
+      "name": "responce"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "quwry": "can you grab my past emails from ved praksh(vedp06191@gamil.com) "
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "email Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get massage": {
+      "ai_tool": [
+        [
+          {
+            "node": "email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sand email": {
+      "ai_tool": [
+        [
+          {
+            "node": "email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email Agent": {
+      "main": [
+        [
+          {
+            "node": "responce",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "6bbec7a7-a056-4ac7-80de-1dbed6101604",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1ed2e641efde4ecf1277ffef20ff6ce8cd5b442d9f65ce119f24d93c6490218"
+  },
+  "id": "ZRc2J79rMPao0TUj2Z_A8",
+  "tags": []
+}
